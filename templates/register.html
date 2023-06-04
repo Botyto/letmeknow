@@ -1,13 +1,9 @@
-<html>
-    <head>
-        <title>Let me know | Register</title>
-    </head>
-    <body>
-        <h1>let me know</h1>
-        <form action="register" method="post">
-            Username: <input type="text" name="username"/><br/>
-            Password: <input type="password" name="password"/><br/>
-            <input type="submit" value="Register">
-        </form>
-    </body>
-</html>
+{% extends base.html %}
+
+{% block body %}
+<form action="{{ reverse_url('register') }}" method="post">
+    Username: <input type="text" name="username"/><br/>
+    Password: <input type="password" name="password"/><br/>
+    <input type="submit" value="Register">
+</form>
+{% end %}
