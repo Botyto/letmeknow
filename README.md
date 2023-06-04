@@ -6,7 +6,7 @@ Any device that has a modern browser can subscribe and recieve notifications.
 TODO...
 
 # Steps
-1. register & login
+1. Register & login
 2. Click "Subscribe"
 3. Create and API key
 4. ...
