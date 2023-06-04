@@ -1,5 +1,6 @@
 import logging
 import tornado.web
+import sqlalchemy.exc
 import sqlalchemy.orm
 
 import db
