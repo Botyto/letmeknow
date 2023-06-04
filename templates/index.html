@@ -20,7 +20,7 @@
                             <th scope="col">Name</th>
                             <th scope="col">Level</th>
                             <th scope="col">Enabled</th>
-                            <th scope="col">Delete</th>
+                            <th scope="col">Edit</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -29,8 +29,16 @@
                                 <th scope="row">{{ i + 1 }}</th>
                                 <td>{{ channel.name }}</td>
                                 <td>{{ channel.min_level }}</td>
-                                <td>{{ channel.enabled }}</td>
-                                <td><a href="#">Delete</a></td>
+                                <td>
+                                    {{ "Enabled" if channel.enabled else "Disabled" }} |
+                                    <a href="#">Toggle</a>
+                                </td>
+                                <td>
+                                    <form action="{{ reverse_url('edit_channel') }}" method="get">
+                                        <input type="hidden" name="name" value="{{ channel.name }}"/>
+                                        <input type="submit" value="Edit" class="btn btn-link align-baseline"/>
+                                    </form>
+                                </td>
                             </tr>
                         {% end %}
                     </tbody>
@@ -57,17 +65,25 @@
                             <tr>
                                 <th scope="row">{{ i + 1 }}</th>
                                 <td>
-                                    {{ api_key.key }}
+                                    {{ api_key.key }} |
                                     <a href="#">Copy</a>
                                 </td>
-                                <td>{{ api_key.enabled }}</td>
-                                <td><a href="#">Delete</a></td>
+                                <td>
+                                    {{ "Enabled" if api_key.enabled else "Disabled" }} |
+                                    <a href="#">Toggle</a>
+                                </td>
+                                <td>
+                                    <form action="{{ reverse_url('delete_api_key') }}" method="post">
+                                        <input type="hidden" name="key" value="{{ api_key.key }}"/>
+                                        <input type="submit" value="Delete" class="btn btn-link align-baseline"/>
+                                    </form>
+                                </td>
                             </tr>
                         {% end %}
                     </tbody>
                 </table>
             {% else %}
-                No API keys yet.
+                No API keys yet. Click the button below to generate one.
             {% end %}
             <form action="{{ reverse_url('new_api_key') }}" method="post">
                 <input type="submit" class="btn btn-primary" value="Generate new API key" />

@@ -28,6 +28,9 @@ if __name__ == "__main__":
         tornado.web.URLSpec("/register", frontend.RegisterRequestHandler, None, "register"),
         tornado.web.URLSpec("/logout", frontend.LogoutRequestHandler, None, "logout"),
         tornado.web.URLSpec("/new_api_key", frontend.NewApiKeyRequestHandler, None, "new_api_key"),
+        tornado.web.URLSpec("/delete_api_key", frontend.DeleteApiKeyRequestHandler, None, "delete_api_key"),
+        tornado.web.URLSpec("/edit_channel", frontend.EditChannelRequestHandler, None, "edit_channel"),
+        tornado.web.URLSpec("/delete_channel", frontend.DeleteChannelRequestHandler, None, "delete_channel"),
     ]
     webapp = tornado.web.Application(
         handlers,
