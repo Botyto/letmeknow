@@ -5,6 +5,7 @@ import tornado.web
 import api
 import db
 import frontend
+import mywebpush
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
@@ -17,8 +18,11 @@ logger.addHandler(console_handler)
 if __name__ == "__main__":
     logger.info("Setting up SQLite database")
     db.Model.metadata.create_all(db.engine)
+    mywebpush.load_vapid()
     handlers = [
         tornado.web.URLSpec("/api/push", api.PushRequestHandler, None, "api/push"),
+        tornado.web.URLSpec("/api/vapid", api.VapidRequestHandler, None, "api/vapid"),
+        tornado.web.URLSpec("/api/subscribe", api.SubscribeRequestHandler, None, "api/subscribe"),
         tornado.web.URLSpec("/", frontend.IndexRequestHandler, None, "index"),
         tornado.web.URLSpec("/login", frontend.LoginRequestHandler, None, "login"),
         tornado.web.URLSpec("/register", frontend.RegisterRequestHandler, None, "register"),
