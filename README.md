@@ -12,5 +12,5 @@ TODO...
 4. ...
 
 # Technology
-The notifications are devlivered using webpush messages: [supported browsers](https://caniuse.com/push-api)
-The notifications are displayed using the notification API: [supported browsers](https://caniuse.com/notifications)
+- The notifications are devlivered using webpush messages: [supported browsers](https://caniuse.com/push-api)
+- The notifications are displayed using the notification API: [supported browsers](https://caniuse.com/notifications)
