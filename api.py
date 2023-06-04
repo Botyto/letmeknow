@@ -8,6 +8,18 @@ import model
 logger = logging.getLogger(__name__)
 
 
+class Notification:
+    DEFAULT_CHANNEL = "default"
+    DEFAULT_LEVEL = 0
+
+    channel: str
+    level: int
+
+    def __init__(self, channel: str|None = None, level: int|None = None):
+        self.channel = channel or self.DEFAULT_CHANNEL
+        self.level = level or self.DEFAULT_LEVEL
+
+
 class ApiRequestHandler(auth.AuthRequestHandler):
     def write_error(self, status_code: int, **kwargs):
         exc_info = kwargs.get("exc_info")
@@ -21,10 +33,7 @@ class ApiRequestHandler(auth.AuthRequestHandler):
                 "error": self._reason,
             }))
 
-
-class PushRequestHandler(ApiRequestHandler):
-    def post(self):
-        api_key = self.get_argument("key")
+    def push(self, api_key: str, notification: Notification):
         api_key_obj = self.session.query(model.ApiKey) \
             .filter_by(key=api_key) \
             .one_or_none()
@@ -35,21 +44,32 @@ class PushRequestHandler(ApiRequestHandler):
         user: model.User = api_key_obj.user
         if not user.enabled:
             raise ValueError("User disabled")
-        channel = self.get_argument("channel", "default")
         channel_obj = self.session.query(model.Channel) \
             .filter_by(user_id=user.id) \
-            .filter_by(name=channel) \
+            .filter_by(name=notification.channel) \
             .one_or_none()
         if channel_obj is None:
-            channel_obj = model.Channel.new(user, channel)
+            channel_obj = model.Channel.new(user, notification.channel)
             self.session.add(channel_obj)
         else:
-            level = int(self.get_argument("level", "0"))
-            if channel_obj.min_level > level:
+            if channel_obj.min_level > int(notification.level):
                 raise ValueError("Level too low")
         subscriptions: typing.Iterable[model.WebpushSubscription] = user.subscriptions
         for subscription in subscriptions:
             logger.debug("Pushing notification to %d", subscription.id)
+
+    def push_and_write(self, api_key: str, notification: Notification):
+        self.push(api_key, notification)
         self.write(tornado.escape.json_encode({
             "ok": True,
         }))
+
+
+class PushRequestHandler(ApiRequestHandler):
+    def post(self):
+        api_key = self.get_argument("key")
+        notification = Notification(
+            channel=self.get_argument("channel", None),
+            level=int(self.get_argument("level", "0")),
+        )
+        self.push_and_write(api_key, notification)
