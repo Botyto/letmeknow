@@ -1,7 +1,7 @@
 {% extends base.html %}
 
 {% block body %}
-<form action="{{ reverse_url('login') }}" method="post">
+<form action="{{ reverse_url('auth/login') }}" method="post">
     Username: <input type="text" name="username"/><br/>
     Password: <input type="password" name="password"/><br/>
     <input type="submit" value="Login" class="btn btn-primary">

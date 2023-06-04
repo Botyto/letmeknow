@@ -2,9 +2,13 @@ import logging
 import tornado.ioloop
 import tornado.web
 
-import api
+import api.push
+import api.webpush
 import db
-import frontend
+import frontend.api_key
+import frontend.auth
+import frontend.base
+import frontend.channel
 import mywebpush
 
 logger = logging.getLogger()
@@ -20,17 +24,17 @@ if __name__ == "__main__":
     db.Model.metadata.create_all(db.engine)
     mywebpush.load_vapid()
     handlers = [
-        tornado.web.URLSpec("/api/push", api.PushRequestHandler, None, "api/push"),
-        tornado.web.URLSpec("/api/vapid", api.VapidRequestHandler, None, "api/vapid"),
-        tornado.web.URLSpec("/api/subscribe", api.SubscribeRequestHandler, None, "api/subscribe"),
-        tornado.web.URLSpec("/", frontend.IndexRequestHandler, None, "index"),
-        tornado.web.URLSpec("/login", frontend.LoginRequestHandler, None, "login"),
-        tornado.web.URLSpec("/register", frontend.RegisterRequestHandler, None, "register"),
-        tornado.web.URLSpec("/logout", frontend.LogoutRequestHandler, None, "logout"),
-        tornado.web.URLSpec("/new_api_key", frontend.NewApiKeyRequestHandler, None, "new_api_key"),
-        tornado.web.URLSpec("/delete_api_key", frontend.DeleteApiKeyRequestHandler, None, "delete_api_key"),
-        tornado.web.URLSpec("/edit_channel", frontend.EditChannelRequestHandler, None, "edit_channel"),
-        tornado.web.URLSpec("/delete_channel", frontend.DeleteChannelRequestHandler, None, "delete_channel"),
+        tornado.web.URLSpec("/api/push", api.push.PushRequestHandler, None, "api/push"),
+        tornado.web.URLSpec("/api/vapid", api.webpush.VapidRequestHandler, None, "api/vapid"),
+        tornado.web.URLSpec("/api/subscribe", api.webpush.SubscribeRequestHandler, None, "api/subscribe"),
+        tornado.web.URLSpec("/", frontend.base.IndexRequestHandler, None, "index"),
+        tornado.web.URLSpec("/auth/login", frontend.auth.LoginRequestHandler, None, "auth/login"),
+        tornado.web.URLSpec("/auth/register", frontend.auth.RegisterRequestHandler, None, "auth/register"),
+        tornado.web.URLSpec("/auth/logout", frontend.auth.LogoutRequestHandler, None, "auth/logout"),
+        tornado.web.URLSpec("/api_key/new", frontend.api_key.NewApiKeyRequestHandler, None, "api_key/new"),
+        tornado.web.URLSpec("/api_key/delete", frontend.api_key.DeleteApiKeyRequestHandler, None, "api_key/delete"),
+        tornado.web.URLSpec("/channel/edit", frontend.channel.EditChannelRequestHandler, None, "channel/edit"),
+        tornado.web.URLSpec("/channel/delete", frontend.channel.DeleteChannelRequestHandler, None, "channel/delete"),
     ]
     webapp = tornado.web.Application(
         handlers,

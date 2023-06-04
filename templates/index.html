@@ -2,9 +2,9 @@
 
 {% block header %}
     {% if user_id %}
-        {{ user.username }} / <a href="{{ reverse_url('logout') }}">Logout</a>
+        {{ user.username }} / <a href="{{ reverse_url('auth/logout') }}">Logout</a>
     {% else %}
-        <a href="{{ reverse_url('login') }}">Login</a> / <a href="{{ reverse_url('register') }}">Register</a>
+        <a href="{{ reverse_url('auth/login') }}">Login</a> / <a href="{{ reverse_url('auth/register') }}">Register</a>
     {% end %}
 {% end %}
 
@@ -34,7 +34,7 @@
                                     <a href="#">Toggle</a>
                                 </td>
                                 <td>
-                                    <form action="{{ reverse_url('edit_channel') }}" method="get">
+                                    <form action="{{ reverse_url('channel/edit') }}" method="get">
                                         <input type="hidden" name="name" value="{{ channel.name }}"/>
                                         <input type="submit" value="Edit" class="btn btn-link align-baseline"/>
                                     </form>
@@ -73,7 +73,7 @@
                                     <a href="#">Toggle</a>
                                 </td>
                                 <td>
-                                    <form action="{{ reverse_url('delete_api_key') }}" method="post">
+                                    <form action="{{ reverse_url('api_key/delete') }}" method="post">
                                         <input type="hidden" name="key" value="{{ api_key.key }}"/>
                                         <input type="submit" value="Delete" class="btn btn-link align-baseline"/>
                                     </form>
@@ -85,7 +85,7 @@
             {% else %}
                 No API keys yet. Click the button below to generate one.
             {% end %}
-            <form action="{{ reverse_url('new_api_key') }}" method="post">
+            <form action="{{ reverse_url('api_key/new') }}" method="post">
                 <input type="submit" class="btn btn-primary" value="Generate new API key" />
             </form>
         </section>

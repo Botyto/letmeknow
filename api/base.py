@@ -1,12 +1,9 @@
-import cryptography.hazmat.primitives.serialization
 import logging
-import py_vapid
 import tornado.escape
 import typing
 
 import auth
 import model
-import mywebpush
 
 logger = logging.getLogger(__name__)
 
@@ -70,56 +67,3 @@ class ApiRequestHandler(auth.AuthRequestHandler):
         self.push(api_key, notification)
         self.ok()
         self.finish()
-
-
-class VapidRequestHandler(ApiRequestHandler):
-    def get(self):
-        raw_public_key = mywebpush.vapid.public_key.public_bytes(
-            cryptography.hazmat.primitives.serialization.Encoding.X962,
-            cryptography.hazmat.primitives.serialization.PublicFormat.UncompressedPoint,
-        )
-        public_key = py_vapid.b64urlencode(raw_public_key)
-        self.write(tornado.escape.json_decode({
-            "public_key": public_key,
-        }))
-
-
-class SubscribeRequestHandler(ApiRequestHandler):
-    def post(self):
-        all_info: dict = self.request.body.decode(self.request.body.decode("utf-8"))
-        saved_info = {
-            "endpoint": all_info["endpoint"],
-            "keys": {
-                "auth": self["keys"]["auth"],
-                "p256dh": self["keys"]["p256dh"],
-            },
-        }
-        already_existing = self.session.query(model.WebpushSubscription) \
-            .filter_by(user_id=self.current_user) \
-            .filter_by(info=tornado.escape.json_encode(saved_info)) \
-            .one_or_none()
-        if already_existing:
-            raise ValueError("Already subscribed")
-        user = self.session.get(model.User, self.current_user)
-        subscription = model.WebpushSubscription.new(user, saved_info)
-        self.session.add(subscription)
-        self.session.commit()
-        self.write(tornado.escape.json_encode(subscription))
-        
-
-    def delete(self):
-        subscription_id = int(self.get_argument("id"))
-        subscription = self.session.get(model.WebpushSubscription, subscription_id)
-        self.session.delete(subscription)
-        self.session.commit()
-        self.ok()
-
-
-class PushRequestHandler(ApiRequestHandler):
-    def post(self):
-        api_key = self.get_argument("key")
-        notification = Notification(
-            channel=self.get_argument("channel", None),
-            level=int(self.get_argument("level", "0")),
-        )
-        self.push_and_finish(api_key, notification)
