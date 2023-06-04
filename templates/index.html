@@ -1,0 +1,83 @@
+<html>
+    <head>
+        <title>Let me know</title>
+        <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+        <script src="/static/js/bootstrap.bundle.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            {% if user_id %}
+                <nav class="mb-5">
+                    <h1>Let me know</h1>
+                    {{ user.username }} / <a href="/logout">Logout</a>
+                </nav>
+
+                <section class="mb-5">
+                    <h2>Channels</h2>
+                    {% if user.channels %}
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Level</th>
+                                    <th scope="col">Enabled</th>
+                                    <th scope="col">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i, channel in enumerate(user.channels) %}
+                                    <tr>
+                                        <th scope="row">{{ i + 1 }}</th>
+                                        <td>{{ channel.name }}</td>
+                                        <td>{{ channel.min_level }}</td>
+                                        <td>{{ channel.enabled }}</td>
+                                        <td><a href="#">Delete</a></td>
+                                    </tr>
+                                {% end %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        No channels yet. Receving a notification will create one automatically.
+                    {% end %}
+                </section>
+
+                <section class="mb-5">
+                    <h3>API keys</h3>
+                    {% if user.api_keys %}
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Key</th>
+                                    <th scope="col">Enabled</th>
+                                    <th scope="col">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i, api_key in enumerate(user.api_keys) %}
+                                    <tr>
+                                        <th scope="row">{{ i + 1 }}</th>
+                                        <td>
+                                            {{ api_key.key }}
+                                            <a href="#">Copy</a>
+                                        </td>
+                                        <td>{{ api_key.enabled }}</td>
+                                        <td><a href="#">Delete</a></td>
+                                    </tr>
+                                {% end %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        No API keys yet.
+                    {% end %}
+                    <form action="/new_api_key" method="post">
+                        <input type="submit" class="btn btn-primary" value="Generate new API key" />
+                    </form>
+                </section>
+            {% else %}
+                <a href="/login">Login</a> / <a href="/register">Register</a>
+            {% end %}
+        </div>
+    </body>
+</html>
