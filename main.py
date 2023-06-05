@@ -1,14 +1,17 @@
+import argparse
+import json
 import logging
+import os
 import tornado.ioloop
 import tornado.web
 
 import api.push
 import api.webpush
-import db
 import frontend.api_key
 import frontend.auth
 import frontend.base
 import frontend.channel
+import migrations
 import mywebpush
 
 logger = logging.getLogger()
@@ -19,9 +22,28 @@ console_handler.setLevel(logging.DEBUG)
 console_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 
-if __name__ == "__main__":
-    logger.info("Setting up SQLite database")
-    db.Model.metadata.create_all(db.engine)
+env = {}
+if os.path.isfile("env.json"):
+    with open("env.json", "rt", encoding="utf-8") as fh:
+        env = json.load(fh)
+
+def run_migrations(action: str):
+    manager = migrations.MigrationsManager(env)
+    if action == "init":
+        manager.init()
+    elif action == "generate":
+        title = None
+        while not title:
+            title = input("Enter the title of the migration: ")
+        manager.generate(title)
+    elif action == "update":
+        manager.update()
+    elif action == "uninstall":
+        manager.uninstall()
+    else:
+        raise Exception(f"Unknown migrations action: {action}")
+
+def start_server():
     mywebpush.load_vapid()
     handlers = [
         tornado.web.URLSpec("/api/push", api.push.PushRequestHandler, None, "api/push"),
@@ -50,3 +72,17 @@ if __name__ == "__main__":
     logger.info("Listening on port %d", port)
     loop = tornado.ioloop.IOLoop.current()
     loop.start()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        prog="Backend server",
+        description="Backend server")
+    parser.add_argument("-m", "--migration", dest="migration",
+        required=False, type=str,
+        choices=["init", "generate", "update", "uninstall"])
+    args = parser.parse_args()
+
+    if args.migration:
+        run_migrations(args.migration)
+    else:
+        start_server()
